@@ -16,7 +16,7 @@ var Github = (function() {
     
     while(true) {
       iteration++;
-      result = executeQuery(getQuery(100, cursor));
+      result = executeQuery(getReposQuery(100, cursor));
       repos = result.data.organization.repositories.edges;
       
       if (repos.length == 0) {
@@ -26,7 +26,7 @@ var Github = (function() {
       for(var i=0; i<repos.length; i++) {
         count++;
         cursor = repos[i].cursor;
-        items.push(buildTuple(repos[i]));
+        items.push(buildReposTuple(repos[i]));
       }
     }
     
@@ -38,7 +38,7 @@ var Github = (function() {
   }
 
   // Returns an object with the fields in item we are interested in
-  function buildTuple(item) {
+  function buildReposTuple(item) {
     return {
       name: item.node.name,
       description: item.node.description,
@@ -61,8 +61,8 @@ var Github = (function() {
   }
   
   // Constructs the graphql query
-  function getQuery(numItems, cursor) {
-    var template = getBaseQuery();
+  function getReposQuery(numItems, cursor) {
+    var template = getReposBaseQuery();
     var first = 'first: ' + numItems;
     var after = (cursor !== '') ? ', after: "' + cursor + '"' : '';
     template = template.replace('first: 100', first + after);
@@ -71,7 +71,7 @@ var Github = (function() {
   }
   
   // Returns the base graphql query for Github
-  function getBaseQuery() {
+  function getReposBaseQuery() {
     return "{\
       organization(login: $LOGIN$) {\
         repositories(first: 100, orderBy: {field: NAME, direction: ASC}) {\
